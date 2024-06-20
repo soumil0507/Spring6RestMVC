@@ -3,6 +3,7 @@ package bose.soumil.spring6restmvc.services;
 import bose.soumil.spring6restmvc.model.Customer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -47,6 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     }
 
+//    get request
     @Override
     public List<Customer> listCustomers() {
         return new ArrayList<>(customerMap.values());
@@ -60,6 +62,7 @@ public class CustomerServiceImpl implements CustomerService {
         return customerMap.get(id);
     }
 
+//    post reqeust
     @Override
     public Customer saveNewCustomer(Customer customer) {
         Customer savedCustomer = Customer
@@ -74,5 +77,37 @@ public class CustomerServiceImpl implements CustomerService {
         customerMap.put(savedCustomer.getId(), savedCustomer);
 
         return savedCustomer;
+    }
+
+//    put request
+    @Override
+    public void updateCustomer(UUID customerId, Customer customer) {
+//        get hold of the existing customer
+        Customer existingCustomer = customerMap.get(customerId);
+
+//        update the customer details
+        existingCustomer.setName(customer.getName());
+
+//        add the updatedCustomer in the customer map
+        customerMap.put(existingCustomer.getId(), existingCustomer);
+    }
+
+//    delete request
+    @Override
+    public void deleteById(UUID customerId) {
+        customerMap.remove(customerId);
+    }
+
+//    patch request
+
+    @Override
+    public void patchCustomerById(UUID customerId, Customer customer) {
+
+        Customer existingCustomer = customerMap.get(customerId);
+
+        if (StringUtils.hasText(customer.getName())){
+            existingCustomer.setName(customer.getName());
+        }
+
     }
 }

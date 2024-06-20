@@ -4,6 +4,7 @@ import bose.soumil.spring6restmvc.model.Beer;
 import bose.soumil.spring6restmvc.model.BeerStyle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -93,5 +94,59 @@ public class BeerServiceImpl implements BeerService {
 //        ADD THIS BEER IN THE BEER MAP
         beerMap.put(savedBeer.getId(), savedBeer);
         return savedBeer;
+    }
+
+    @Override
+    public void updateBeerById(UUID beerId, Beer beer) {
+        Beer existingBeer = beerMap.get(beerId);
+
+//        update the details
+        existingBeer.setBeerName(beer.getBeerName());
+        existingBeer.setPrice(beer.getPrice());
+        existingBeer.setUpc(beer.getUpc());
+        existingBeer.setQuantityOnHand(beer.getQuantityOnHand());
+
+//        update the beerMap
+        beerMap.put(existingBeer.getId(), existingBeer);
+    }
+
+//    delete beer
+    @Override
+    public void deleteById(UUID beerId) {
+
+        beerMap.remove(beerId);
+    }
+
+//    patch beer
+
+
+    @Override
+    public void patchBeerById(UUID beerId, Beer beer) {
+
+        Beer existingBeer = beerMap.get(beerId);
+
+//        check if a property is passed then only update that particular property
+
+        if (StringUtils.hasText(beer.getBeerName())){
+            existingBeer.setBeerName(beer.getBeerName());
+        }
+
+        if (beer.getBeerStyle()!=null){
+            existingBeer.setBeerStyle(beer.getBeerStyle());
+        }
+
+        if (beer.getPrice()!=null){
+            existingBeer.setPrice(beer.getPrice());
+        }
+
+        if (beer.getQuantityOnHand()!=null){
+            existingBeer.setQuantityOnHand(beer.getQuantityOnHand());
+        }
+
+        if (beer.getUpc()!=null){
+            existingBeer.setUpc(beer.getUpc());
+        }
+
+
     }
 }

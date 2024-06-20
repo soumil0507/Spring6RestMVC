@@ -22,6 +22,34 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+//    patch request
+
+    @PatchMapping("{customerId}")
+    public ResponseEntity updateCustomerPatchById(@PathVariable("customerId") UUID customerId, @RequestBody Customer customer){
+
+        customerService.patchCustomerById(customerId, customer);
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+
+    }
+
+//    delete request
+
+    @DeleteMapping("{customerId}")
+    public ResponseEntity deleteCustomerById(@PathVariable("customerId") UUID customerId){
+        customerService.deleteById(customerId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+//    put mapping
+
+    @PutMapping("{customerId}")
+    public ResponseEntity updateCustomerById(@PathVariable("customerId") UUID customerId,@RequestBody Customer customer){
+        customerService.updateCustomer(customerId, customer);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+
 //    post request for customers
 
     @PostMapping
@@ -35,6 +63,8 @@ public class CustomerController {
         return new ResponseEntity(headers, HttpStatus.CREATED);
 
     }
+
+//    get request
 
     @RequestMapping(method = RequestMethod.GET)
     public List<Customer> listCustomers(){

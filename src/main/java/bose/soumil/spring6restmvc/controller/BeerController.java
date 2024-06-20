@@ -20,24 +20,7 @@ public class BeerController {
 
     private final BeerService beerService;
 
-
-//    post request
-    @PostMapping
-//    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity handlePost(@RequestBody Beer beer){
-
-        Beer savedBeer = beerService.saveNewBeer(beer);
-
-//        setting up headers in response for post request
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/v1/beer/"+savedBeer.getId().toString());
-
-        return new ResponseEntity(headers, HttpStatus.CREATED);
-
-    }
-
-
+    //    ---------------------GET REQUEST----------------------------
     @RequestMapping(method = RequestMethod.GET)
     public List<Beer> listBeers(){
         return beerService.listBeers();
@@ -50,4 +33,45 @@ public class BeerController {
         return beerService.getBeerById(beerId);
     }
 
+//    ---------------------POST REQUEST----------------------------
+    @PostMapping
+//    @RequestMapping(method = RequestMethod.POST)
+    public ResponseEntity handlePost(@RequestBody Beer beer){
+
+        Beer savedBeer = beerService.saveNewBeer(beer);
+
+//        setting up headers in response for post request
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/api/v1/beer/"+savedBeer.getId().toString());
+
+        return new ResponseEntity(headers, HttpStatus.CREATED);
+    }
+
+    //    ---------------------PUT REQUEST----------------------------
+    //    a combination of get by id and post
+    @PutMapping("{beerId}")
+    public ResponseEntity updateById(@PathVariable("beerId") UUID beerId,@RequestBody Beer beer){
+
+        beerService.updateBeerById(beerId, beer);
+
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    //    ---------------------DELETE REQUEST----------------------------
+
+    @DeleteMapping("{beerId}")
+    public ResponseEntity deleteById(@PathVariable("beerId") UUID beerId){
+
+        beerService.deleteById(beerId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    //    ---------------------PATCH REQUEST----------------------------
+    @PatchMapping("{beerId}")
+    public ResponseEntity updateBeerPatchById(@PathVariable("beerId") UUID beerId,@RequestBody Beer beer){
+
+        beerService.patchBeerById(beerId, beer);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
 }
