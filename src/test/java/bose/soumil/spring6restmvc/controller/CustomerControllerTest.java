@@ -1,6 +1,6 @@
 package bose.soumil.spring6restmvc.controller;
 
-import bose.soumil.spring6restmvc.model.Customer;
+import bose.soumil.spring6restmvc.model.CustomerDTO;
 import bose.soumil.spring6restmvc.services.CustomerService;
 import bose.soumil.spring6restmvc.services.CustomerServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,7 +8,6 @@ import org.hamcrest.core.Is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.BDDMockito;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,10 +17,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -46,7 +47,7 @@ class CustomerControllerTest {
     ArgumentCaptor<UUID> uuidArgumentCaptor;
 
     @Captor
-    ArgumentCaptor<Customer> customerArgumentCaptor;
+    ArgumentCaptor<CustomerDTO> customerArgumentCaptor;
 
 
     @BeforeEach
@@ -57,7 +58,7 @@ class CustomerControllerTest {
     @Test
     void testPatchCustomer() throws Exception{
 
-        Customer customer = customerServiceImpl.listCustomers().get(0);
+        CustomerDTO customer = customerServiceImpl.listCustomers().get(0);
 
         Map<String, Object> customerMap = new HashMap<>();
         customerMap.put("name", "New Name");
@@ -77,7 +78,7 @@ class CustomerControllerTest {
 
     @Test
     void testDeleteCustomer() throws Exception {
-        Customer customer = customerServiceImpl.listCustomers().get(0);
+        CustomerDTO customer = customerServiceImpl.listCustomers().get(0);
 
         mockMvc.perform(delete("/api/v1/customer/"+customer.getId())
                 .accept(MediaType.APPLICATION_JSON))
@@ -96,7 +97,7 @@ class CustomerControllerTest {
     @Test
     void testUpdateCustomer() throws Exception{
 
-        Customer customer = customerServiceImpl.listCustomers().get(0);
+        CustomerDTO customer = customerServiceImpl.listCustomers().get(0);
 
         mockMvc.perform(put("/api/v1/customer/"+customer.getId())
                 .accept(MediaType.APPLICATION_JSON)
@@ -104,18 +105,18 @@ class CustomerControllerTest {
                 .content(objectMapper.writeValueAsString(customer)))
                 .andExpect(status().isNoContent());
 
-        verify(customerService).updateCustomer(any(UUID.class), any(Customer.class));
+        verify(customerService).updateCustomer(any(UUID.class), any(CustomerDTO.class));
 
     }
 
     @Test
     void testCreateNewCustomer() throws Exception {
 
-        Customer customer = customerServiceImpl.listCustomers().get(0);
+        CustomerDTO customer = customerServiceImpl.listCustomers().get(0);
         customer.setId(null);
         customer.setName("New Customer 1");
 
-        BDDMockito.given(customerService.saveNewCustomer(customer))
+        given(customerService.saveNewCustomer(customer))
                 .willReturn(customerServiceImpl.listCustomers().get(1));
 
 
@@ -134,7 +135,7 @@ class CustomerControllerTest {
     void listCustomers() throws Exception {
 
 
-        BDDMockito.given(customerService.listCustomers()).willReturn(customerServiceImpl.listCustomers());
+        given(customerService.listCustomers()).willReturn(customerServiceImpl.listCustomers());
 
         mockMvc.perform(get("/api/v1/customer")
                 .accept(MediaType.APPLICATION_JSON))
@@ -145,11 +146,22 @@ class CustomerControllerTest {
     }
 
     @Test
+    void getCustomerByIdNotFound() throws Exception {
+
+        given(customerService.getCustomerById(any(UUID.class)))
+                .willReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/v1/customer/"+UUID.randomUUID()))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
     void getCustomerById() throws Exception{
 
-        Customer testCustomer = customerServiceImpl.listCustomers().get(0);
+        CustomerDTO testCustomer = customerServiceImpl.listCustomers().get(0);
 
-        BDDMockito.given(customerService.getCustomerById(testCustomer.getId())).willReturn(testCustomer);
+        given(customerService.getCustomerById(testCustomer.getId())).willReturn(Optional.of(testCustomer));
 
         mockMvc.perform(get("/api/v1/customer/"+testCustomer.getId())
                 .accept(MediaType.APPLICATION_JSON))

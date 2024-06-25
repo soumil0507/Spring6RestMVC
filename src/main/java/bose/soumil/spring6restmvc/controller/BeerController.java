@@ -1,6 +1,6 @@
 package bose.soumil.spring6restmvc.controller;
 
-import bose.soumil.spring6restmvc.model.Beer;
+import bose.soumil.spring6restmvc.model.BeerDTO;
 import bose.soumil.spring6restmvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,23 +22,24 @@ public class BeerController {
 
     //    ---------------------GET REQUEST----------------------------
     @RequestMapping(method = RequestMethod.GET)
-    public List<Beer> listBeers(){
+    public List<BeerDTO> listBeers(){
         return beerService.listBeers();
     }
 
+
 //    path parameter
     @RequestMapping(value = "{beerId}", method = RequestMethod.GET)
-    public Beer getBeerById(@PathVariable("beerId") UUID beerId){
+    public BeerDTO getBeerById(@PathVariable("beerId") UUID beerId){
         log.debug("Get Beer by id - in controller");
-        return beerService.getBeerById(beerId);
+        return beerService.getBeerById(beerId).orElseThrow(NotFoundException::new);
     }
 
 //    ---------------------POST REQUEST----------------------------
     @PostMapping
 //    @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity handlePost(@RequestBody Beer beer){
+    public ResponseEntity handlePost(@RequestBody BeerDTO beer){
 
-        Beer savedBeer = beerService.saveNewBeer(beer);
+        BeerDTO savedBeer = beerService.saveNewBeer(beer);
 
 //        setting up headers in response for post request
 
@@ -51,7 +52,7 @@ public class BeerController {
     //    ---------------------PUT REQUEST----------------------------
     //    a combination of get by id and post
     @PutMapping("{beerId}")
-    public ResponseEntity updateById(@PathVariable("beerId") UUID beerId,@RequestBody Beer beer){
+    public ResponseEntity updateById(@PathVariable("beerId") UUID beerId,@RequestBody BeerDTO beer){
 
         beerService.updateBeerById(beerId, beer);
 
@@ -69,7 +70,7 @@ public class BeerController {
 
     //    ---------------------PATCH REQUEST----------------------------
     @PatchMapping("{beerId}")
-    public ResponseEntity updateBeerPatchById(@PathVariable("beerId") UUID beerId,@RequestBody Beer beer){
+    public ResponseEntity updateBeerPatchById(@PathVariable("beerId") UUID beerId,@RequestBody BeerDTO beer){
 
         beerService.patchBeerById(beerId, beer);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
